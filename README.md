@@ -199,7 +199,15 @@ Device attempted to register before being synced to Entra ID
 
 ✅ Resolution
 
-Ran in Powershell:
+### ✅ GPO Link Verification
+
+On DC01, Confirmed policy is linked at the domain level (`corp.lab`).
+
+  
+![](AD-To-AAD/GPO-Hybrid-Join1.png)
+
+
+Then Ran in Powershell:
 
 Start-ADSyncSyncCycle -PolicyType Initial
 
@@ -217,6 +225,10 @@ BATgpresult /r /scope computer
 Confirmed:
 
 Hybrid-AAD-Join policy applied ✅
+
+![](Event100.png)
+
+![](Event101.png)
 
 
 🔴 Issue: DNS Concerns
