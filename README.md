@@ -1,182 +1,197 @@
-🏗️ Hybrid Identity + Hybrid Azure AD Join Lab
+✅ 1. Domain Controller Setup (DC01)
+Deployed an Azure VM to act as the on-premises domain controller (DC01). Installed Active Directory Domain Services (AD DS) and configured a new domain:
+corp.lab
 
-📌 Overview
-This project simulates a real-world enterprise hybrid identity environment by integrating on-premises Active Directory with Microsoft Entra ID using Microsoft Entra Connect Sync.
-The lab demonstrates:
+Created a test user:
+etest
 
-Active Directory deployment in Azure
-Identity synchronization to Entra ID
-Hybrid Azure AD Join
-Group Policy-based automation for device registration
-Troubleshooting real-world hybrid join issues
+🔎 Why this step matters
+This establishes the identity source for the entire environment. All authentication, users, and devices originate from AD before syncing to the cloud.
 
+---
 
-🎯 Objectives
+✅ 2. Microsoft Entra Connect + Identity Sync
+Installed Microsoft Entra Connect on DC01 and configured:
 
-Deploy domain controller in Azure (DC01)
-Create domain (corp.lab)
-Sync users from AD → Entra ID
-Configure Hybrid Azure AD Join
-Automate device join using Group Policy
-Validate device authentication
-Troubleshoot hybrid join failures
-
-
-🏗️ Architecture
-DC01 (AD DS)
-   ↓
-Microsoft Entra Connect
-   ↓
-Microsoft Entra ID
-   ↓
-CLIENT01 / CLIENT02
-(Hybrid Joined Devices)
-
-
-🔧 Technologies Used
-
-Microsoft Azure Virtual Machines
-Active Directory Domain Services (AD DS)
-Microsoft Entra ID
-Microsoft Entra Connect Sync
-Group Policy
-Windows 10/11
-
-
-⚙️ Configuration & Implementation
-
-✅ Azure VM Deployment
-Deployed virtual machines:
-
-DC01 (Domain Controller)
-CLIENT01 (initial test device)
-CLIENT02 (automation validation)
+Password Hash Synchronization
+Hybrid identity setup
 
 📸
-Screenshots/VMs-Created-DC01-CLIENT01-CLIENT02.png
+![](AD-To-AAD/Microsoft-Entra-Connect-Sync-Configuring.png)
+📸
+![](AD-To-AAD/Enabling-Sync-DC01.png)
+🔎 Why this step matters
+This bridges:
+On-prem AD → Microsoft Entra ID
 
-✅ Active Directory Configuration
+Without this, users and devices cannot exist in both environments.
 
-Installed AD DS
-Created domain: corp.lab
-Created user: etest
+---
+
+✅ 3. User Sync Verification
+Verified that the on-prem user (etest) successfully synchronized to Microsoft Entra ID.
+📸
+![](AD-To-AAD/ENTRA-User-Synced.png)
+✅ Result
+
+User appears as “On-premises synced” in Entra
+Confirms identity lifecycle is working
+
+---
+
+✅ 4. CLIENT01 VM Creation
+Created a Windows client VM (CLIENT01) to simulate an enterprise endpoint.
+📸
+![](AD-To-AAD/CLIENT01-Creation.png)
+
+---
+
+✅ 5. Domain Join (CLIENT01)
+Joined CLIENT01 to the domain:
+corp.lab
 
 📸
-Screenshots/ADUser-Signed-Into-OnPrem-VM-CLIENT01.png
+![](AD-To-AAD/CLIENT01-Domain-Join-Success.png)
+🔎 Why this matters
+Devices must be:
+Domain Joined ✅
 
-✅ Domain Join
-Joined CLIENT devices to domain.
-📸
-Screenshots/CLIENT01-Domain-Join-Success.png
+before they can become:
+Hybrid Joined ✅
 
-✅ Remote Access Configuration
-Configured RDP access for domain user.
-📸
-Screenshots/Allow-DomainUser-to-RemoteTo-CLIENT01.png
+---
 
-✅ Entra Connect Sync
-Configured identity synchronization.
+✅ 6. Remote Access Configuration
+Added the domain user (etest) to the local Remote Desktop Users group on CLIENT01.
 📸
-Screenshots/Microsoft-Entra-Connect-Sync-Configuring.png
-📸
-Screenshots/ENTRA-User-Synced.png
+![](AD-To-AAD/Allow-DomainUser-to-RemoteTo-CLIENT01.png)
+🔎 Why this matters
+Domain users are not allowed to RDP by default. This step simulates real-world access control tuning.
 
-✅ Hybrid Azure AD Join (Manual Validation)
-Verified hybrid join using:
+---
+
+✅ 7. On-Prem Authentication Validation
+Logged into CLIENT01 using:
+CORP\etest
+
+📸
+![](AD-To-AAD/ADUser-Signed-Into-OnPrem-VM-CLIENT01.png)
+✅ Result
+Confirms:
+✅ User authentication works in AD
+✅ Credentials valid BEFORE cloud dependency
+
+---
+
+✅ 8. Hybrid Azure AD Join (Manual Validation)
+Validated hybrid join on CLIENT01 using:
 dsregcmd /status
 
 📸
-Screenshots/CLIENT01-Device-AzureAD-Joined-dsregcmdstatus.png
+![](AD-To-AAD/CLIENT01-Device-AzureAD-Joined-dsregcmdstatus.png)
+✅ Result
+DomainJoined : YES
+AzureAdJoined: YES
 
-✅ Group Policy Automation
-Created GPO:
+---
+
+✅ 9. Group Policy Automation
+Created a GPO:
 Hybrid-AAD-Join
 
 Enabled:
 Register domain-joined computers as devices
 
 📸
-Screenshots/GPO-Hybrid-Join.png
+![](AD-To-AAD/GPO-Hybrid-Join.png)
 
-✅ Automated Device Join (CLIENT02)
-Tested automation using a fresh device:
+🔎 Why this matters
+This enables:
+✅ Automatic device registration
+✅ Zero-touch onboarding
+✅ Enterprise scalability
 
-Joined to domain
-GPO applied automatically
-Device successfully hybrid joined
+---
+
+✅ 10. CLIENT02 VM Creation (Automation Test)
+Created a second client VM to validate automation.
+📸
+![](AD-To-AAD/AzureVM-CLIENT02-Creation.png)
+
+---
+
+✅ 11. Automated Hybrid Join Validation
+Steps performed:
+
+Joined CLIENT02 to domain
+Logged in with etest
+Waited (no manual commands)
 
 📸
-Screenshots/CLIENT02-Joined-Via-GPO.png
+![](AD-To-AAD/CLIENT02-Joined-Via-GPO.png)
 
-🧪 Testing & Validation
-
-
-
-
-
+✅ Result
+✅ Device hybrid joined automatically
+✅ No manual dsregcmd required
+✅ GPO successfully triggered join process
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-ScenarioResultDomain Join✅ SuccessUser Sync✅ SuccessHybrid Join✅ SuccessGPO Application✅ SuccessAutomated Join✅ Success
+---
 
 🧠 Troubleshooting Highlights
+
 🔴 Issue: Hybrid Join Failed (Event ID 304)
 Error:
 Device object not found
 
-✅ Fix:
+🔍 Root Cause
+Device attempted to register before being synced to Entra ID
 
-Forced Entra sync
-Waited for device object creation
+✅ Resolution
+
+Ran:
+
+Start-ADSyncSyncCycle -PolicyType Initial
+
+
+Waited for device object to appear in Entra
+Retried join → SUCCESS
 
 
 🔴 Issue: GPO Not Applying
-✅ Fix:
-gpresult /r /scope computer
+✅ Fix
+Verified using:
+BATgpresult /r /scope computerShow more lines
+Confirmed:
+Hybrid-AAD-Join policy applied ✅
 
-Verified GPO applied correctly
 
-🔴 Issue: DNS Resolution
-✅ Fix:
+🔴 Issue: DNS Concerns
+✅ Fix
+Validated:
+nslookup login.microsoftonline.com
 
-Configured DC01 DNS forwarders
-Ensured Azure endpoints resolved
-
+Ensured DC01 forwards DNS requests correctly
 
 🎯 Outcome
 
-Successfully implemented hybrid identity
-Automated device registration via GPO
-Validated enterprise device onboarding process
-Troubleshot real-world hybrid identity issues
+✅ Hybrid identity successfully implemented
+✅ Device registration automated via GPO
+✅ Identity + device lifecycle validated
+✅ Troubleshooting completed using real enterprise methods
 
 
 💼 Skills Demonstrated
 
-Active Directory Administration
-Azure Infrastructure Deployment
-Hybrid Identity Configuration
+Active Directory Deployment
+Azure VM Infrastructure
+Microsoft Entra Connect
+Hybrid Identity Architecture
 Group Policy Automation
-Endpoint Identity Management
-Troubleshooting (Event Viewer, Sync, GPO)
+Device Registration (Hybrid Join)
+Troubleshooting:
+
+Event Viewer
+Sync pipelines
+DNS resolution
+Group Policy
