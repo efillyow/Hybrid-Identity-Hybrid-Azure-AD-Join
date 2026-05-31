@@ -226,9 +226,9 @@ Confirmed:
 
 Hybrid-AAD-Join policy applied ✅
 
-![](Event100.png)
+![](AD-To-AAD/Event100.png)
 
-![](Event101.png)
+![](AD-To-AAD/Event101.png)
 
 
 🔴 Issue: DNS Concerns
